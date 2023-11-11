@@ -1,10 +1,22 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, FlatList } from 'react-native'
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Button,
+} from 'react-native'
 import { SearchBar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import { useNavigation } from '@react-navigation/native'
 
 export default function Home() {
+  const navigation = useNavigation()
+
   const [search, setSearch] = useState('')
+  const [selectedBus, setSelectedBus] = useState(null)
+  const [selectedId, setSelectedId] = useState(null)
   const [data, setData] = useState([
     { id: '1', name: 'Ônibus 101' },
     { id: '2', name: 'Ônibus 102' },
@@ -25,6 +37,10 @@ export default function Home() {
   const filteredData = data.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase()),
   )
+
+  const selectBus = (bus) => {
+    setSelectedBus(bus)
+  }
 
   return (
     <View style={styles.container}>
@@ -57,20 +73,48 @@ export default function Home() {
         <FlatList
           data={filteredData}
           renderItem={({ item }) => (
-            <View
+            <TouchableOpacity
               style={{
                 padding: 10,
                 borderRadius: 10,
-                backgroundColor: '#E8E8E8',
+                backgroundColor: item.id === selectedId ? '#510E16' : '#E8E8E8',
                 margin: 5,
               }}
+              onPress={() => {
+                selectBus(item)
+                setSelectedId(item.id)
+              }}
             >
-              <Text>{item.name}</Text>
-            </View>
+              <Text
+                style={{
+                  color: item.id === selectedId ? '#fff' : '#000',
+                  fontWeight: 'bold',
+                }}
+              >
+                {item.name}
+              </Text>
+            </TouchableOpacity>
           )}
           keyExtractor={(item) => item.id}
         />
+        {selectedBus && (
+          <View style={styles.buttonContainer}>
+            <Button
+              title={`Ver horários do ${selectedBus.name}`}
+              onPress={() => alert('Botão pressionado!')}
+              color="white"
+            />
+          </View>
+        )}
       </View>
+      {selectedBus && (
+        <TouchableOpacity
+          style={styles.bottomButton}
+          onPress={() => navigation.navigate('MapScreen')}
+        >
+          <Text style={styles.bottomButtonText}>Avançar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   )
 }
@@ -87,15 +131,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    backgroundColor: '#920D0D',
+    backgroundColor: '#510E16',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    padding: 40,
+    padding: 55,
   },
   welcomeText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#fff',
+    paddingLeft: 10,
   },
   searchContainer: {
     marginTop: 0,
@@ -107,5 +152,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     paddingLeft: 10,
+  },
+  bottomButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#510E16',
+    padding: 15,
+    width: '100%',
+    alignItems: 'center',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  bottomButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 })
