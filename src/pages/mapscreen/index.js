@@ -1,88 +1,115 @@
-import React, { useState, useEffect } from 'react';
-import MapView, { Marker, Polyline } from 'react-native-maps';
-import { StyleSheet, View, TouchableOpacity, TextInput, Alert , Text} from 'react-native';
-import * as Location from 'expo-location';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import React, { useState, useEffect } from 'react'
+import MapView, { Marker, Polyline } from 'react-native-maps'
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  Text,
+} from 'react-native'
+import * as Location from 'expo-location'
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 
-export default function App() {
-  const [location, setLocation] = useState(null);
-  const [coordinates, setCoordinates] = useState([]);
-  const [isRouteActive, setIsRouteActive] = useState(false);
-  const [destination, setDestination] = useState(null);
+export default function MapScreen() {
+  const [location, setLocation] = useState(null)
+  const [coordinates, setCoordinates] = useState([])
+  const [isRouteActive, setIsRouteActive] = useState(false)
+  const [destination, setDestination] = useState(null)
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+    ;(async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') {
-        console.error('Permissão para acessar a localização negada');
-        return;
+        console.error('Permissão para acessar a localização negada')
+        return
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location.coords);
+      const location = await Location.getCurrentPositionAsync({})
+      setLocation(location.coords)
 
-      let subscription = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, timeInterval: 1000, distanceInterval: 10 },
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 10,
+        },
         (newLocation) => {
           if (isRouteActive) {
-            setCoordinates((prevCoords) => [...prevCoords, newLocation.coords]);
+            setCoordinates((prevCoords) => [...prevCoords, newLocation.coords])
           }
-        }
-      );
+        },
+      )
 
       return () => {
         if (subscription) {
-          subscription.remove();
+          subscription.remove()
         }
-      };
-    })();
-  }, [isRouteActive]);
+      }
+    })()
+  }, [isRouteActive])
 
   const startRoute = () => {
-    setCoordinates([]);
-    setIsRouteActive(true);
-  };
+    setCoordinates([])
+    setIsRouteActive(true)
+  }
 
   const stopRoute = () => {
-    setIsRouteActive(false);
-  };
+    setIsRouteActive(false)
+  }
 
   const handleSelectDestination = async (data, details) => {
     try {
-      const startLocation = `${location.latitude},${location.longitude}`;
-      const endLocation = `${details.geometry.location.lat},${details.geometry.location.lng}`;
+      const startLocation = `${location.latitude},${location.longitude}`
+      const endLocation = `${details.geometry.location.lat},${details.geometry.location.lng}`
 
-      const apiKey = 'SUA_CHAVE_DA_API_DO_GOOGLE';
+      const apiKey = 'SUA_CHAVE_DA_API_DO_GOOGLE'
 
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation}&destination=${endLocation}&key=${apiKey}`
-      );
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${startLocation}&destination=${endLocation}&key=${apiKey}`,
+      )
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (result.status === 'OK') {
         setDestination({
           latitude: details.geometry.location.lat,
           longitude: details.geometry.location.lng,
           name: details.formatted_address,
-        });
+        })
 
-        startRoute();
+        startRoute()
       } else {
-        Alert.alert('Erro', 'Não foi possível calcular a rota. Por favor, tente novamente.');
+        Alert.alert(
+          'Erro',
+          'Não foi possível calcular a rota. Por favor, tente novamente.',
+        )
       }
     } catch (error) {
-      console.error('Erro ao calcular a rota:', error);
+      console.error('Erro ao calcular a rota:', error)
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       {location && (
         <>
-          <MapView style={styles.map} initialRegion={{ ...location, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              ...location,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          >
             <Marker coordinate={location} title="Localização Atual" />
-            {isRouteActive && <Polyline coordinates={coordinates} strokeWidth={4} strokeColor="blue" />}
+            {isRouteActive && (
+              <Polyline
+                coordinates={coordinates}
+                strokeWidth={4}
+                strokeColor="blue"
+              />
+            )}
             {destination && <Marker coordinate={destination} title="Destino" />}
           </MapView>
           {!isRouteActive && (
@@ -130,7 +157,7 @@ export default function App() {
         </>
       )}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -164,11 +191,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 10,
-    
   },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
   },
-});
+})

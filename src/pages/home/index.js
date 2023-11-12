@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import {
 import { SearchBar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function Home() {
   const navigation = useNavigation()
-
   const [search, setSearch] = useState('')
   const [selectedBus, setSelectedBus] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
@@ -29,6 +29,24 @@ export default function Home() {
     { id: '9', name: 'Metrô Linha 2' },
     { id: '10', name: 'Metrô Linha 3' },
   ])
+  const [userData, setUserData] = useState(null)
+
+  const getUserData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userData')
+      if (value !== null) {
+        setUserData(JSON.parse(value))
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    getUserData()
+  }, [])
+
+  console.log(userData)
 
   const updateSearch = (search) => {
     setSearch(search)
@@ -45,7 +63,14 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Bem vindo ao Busca Ônibus</Text>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#fff',
+            paddingLeft: 10,
+          }}
+        >{`Olá, ${userData?.nome}`}</Text>
         <Icon
           name="user"
           size={30}
