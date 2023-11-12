@@ -1,14 +1,19 @@
-import React from 'react'
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
-import styles from './style'
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import styles from './style';
 
 export default function Form() {
+  const navigation = useNavigation();
+
+
   const handleLogin = () => {
     // Aqui você pode adicionar a lógica para lidar com o login
-    // Por exemplo:navegação para outra tela, etc.
-    console.log('Botão Entrar pressionado!')
-  }
+    // Por exemplo: validação de login e senha
 
+    // Navegar para outra tela se o login for bem-sucedido
+    navigation.navigate('Home');
+  };
   return (
     <View style={styles.formContext}>
       <View style={styles.form}>
@@ -24,6 +29,7 @@ export default function Form() {
           style={styles.input}
           placeholder="Insira sua senha siga"
           keyboardType="default"
+          secureTextEntry
         />
 
         <TouchableOpacity style={styles.buttonEntrar} onPress={handleLogin}>
@@ -31,5 +37,5 @@ export default function Form() {
         </TouchableOpacity>
       </View>
     </View>
-  )
+  );
 }
