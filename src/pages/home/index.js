@@ -46,7 +46,7 @@ export default function Home() {
   useEffect(() => {
     getUserData()
     getOnibus()
-  }, [])
+  }, [getOnibus])
 
   console.log(userData)
 

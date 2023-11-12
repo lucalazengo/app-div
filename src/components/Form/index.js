@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import styles from './style'
