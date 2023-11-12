@@ -20,36 +20,67 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     color: '#FFFFFF',
-    fontSize: '20',
+    fontSize: 18, // Alterado para 18
     padding: 10,
   },
+
   input: {
-    paddingHorizontal: 1,
+    paddingHorizontal: 10,
     width: '90%',
-    height: 50,
+    height: 60, // Aumentado para 60
     margin: 12,
-    borderRadius: 5,
+    borderRadius: 8, // Aumentado para 8
     backgroundColor: '#fff',
-    //paddingLeft: 20,
-    marginTop: 0,
+    marginTop: 8, // Adicionado espaçamento superior
   },
 
   textbuttonEntrar: {
-    fontSize: 30,
-    color: '##020202',
+    fontSize: 24, // Alterado para 24
+    color: '#020202',
     fontWeight: 'bold',
   },
+
   buttonEntrar: {
     alignItems: 'center',
     justifyContent: 'center',
     width: '90%',
     margin: 12,
-    borderRadius: 5,
+    borderRadius: 8,
     backgroundColor: '#fff',
     paddingLeft: 0,
     marginLeft: 12,
-    paddingBattom: 20,
-    paddingTop: 14,
+    paddingVertical: 10, // Alterado para paddingVertical
+    height: 60, // Aumentado para 60
+  },
+
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+
+  buttonMotorista: {
+    backgroundColor: '#fff',
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '45%',
+  },
+
+  buttonPassageiro: {
+    backgroundColor: '#fff',
+    height: 50,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '45%',
+  },
+
+  buttonText: {
+    color: '#510E16',
+    fontSize: 16,
   },
 })
+
 export default styles

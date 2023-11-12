@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   View,
   Text,
@@ -10,32 +10,52 @@ import {
 import { SearchBar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import axios from 'axios'
 
 export default function Home() {
   const navigation = useNavigation()
-
   const [search, setSearch] = useState('')
   const [selectedBus, setSelectedBus] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
-  const [data, setData] = useState([
-    { id: '1', name: 'Ônibus 101' },
-    { id: '2', name: 'Ônibus 102' },
-    { id: '3', name: 'Ônibus 103' },
-    { id: '4', name: 'Ônibus 104' },
-    { id: '5', name: 'Ônibus 105' },
-    { id: '6', name: 'Trem A' },
-    { id: '7', name: 'Trem B' },
-    { id: '8', name: 'Metrô Linha 1' },
-    { id: '9', name: 'Metrô Linha 2' },
-    { id: '10', name: 'Metrô Linha 3' },
-  ])
+  const [data, setData] = useState([])
+  const [userData, setUserData] = useState(null)
+
+  const getUserData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('userData')
+      if (value !== null) {
+        setUserData(JSON.parse(value))
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const getOnibus = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        'https://efae-45-4-28-15.ngrok-free.app/api/onibus',
+      )
+      setData(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [])
+
+  useEffect(() => {
+    getUserData()
+    getOnibus()
+  }, [getOnibus])
+
+  console.log(userData)
 
   const updateSearch = (search) => {
     setSearch(search)
   }
 
   const filteredData = data.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase()),
+    item.placa.toLowerCase().includes(search.toLowerCase()),
   )
 
   const selectBus = (bus) => {
@@ -45,9 +65,16 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <View style={styles.welcomeContainer}>
-        <Text style={styles.welcomeText}>Bem vindo ao Busca Ônibus</Text>
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: 'bold',
+            color: '#fff',
+            paddingLeft: 10,
+          }}
+        >{`Olá, ${userData?.nome}`}</Text>
         <Icon
-          name="user"
+          placa="user"
           size={30}
           style={{ textAlign: 'center', color: 'white' }}
         />
@@ -77,30 +104,31 @@ export default function Home() {
               style={{
                 padding: 10,
                 borderRadius: 10,
-                backgroundColor: item.id === selectedId ? '#510E16' : '#E8E8E8',
+                backgroundColor:
+                  item._id === selectedId ? '#510E16' : '#E8E8E8',
                 margin: 5,
               }}
               onPress={() => {
                 selectBus(item)
-                setSelectedId(item.id)
+                setSelectedId(item._id)
               }}
             >
               <Text
                 style={{
-                  color: item.id === selectedId ? '#fff' : '#000',
+                  color: item._id === selectedId ? '#fff' : '#000',
                   fontWeight: 'bold',
                 }}
               >
-                {item.name}
+                {item.placa}
               </Text>
             </TouchableOpacity>
           )}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item._id}
         />
         {selectedBus && (
           <View style={styles.buttonContainer}>
             <Button
-              title={`Ver horários do ${selectedBus.name}`}
+              title={`Ver horários do ${selectedBus.placa}`}
               onPress={() => alert('Botão pressionado!')}
               color="white"
             />
