@@ -12,7 +12,7 @@ export default function Form() {
     // Por exemplo: validação de login e senha
 
     // Navegar para outra tela se o login for bem-sucedido
-    navigation.navigate('Home');
+    navigation.navigate('TravelReportForm');
   };
   return (
     <View style={styles.formContext}>

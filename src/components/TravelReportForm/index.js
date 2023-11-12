@@ -1,157 +1,202 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, Button } from 'react-native';
-import { Input } from 'react-native-elements';
+import { ScrollView, View, Text, TextInput, Button, StyleSheet } from 'react-native';
 
 const TravelReportForm = () => {
-  const [formData, setFormData] = useState({
-    field1: '',
-    field2: '',
-    field3: '',
-    field4: '',
-    field5: '',
-    field6: '',
-    field7: '',
-    field8: '',
-    field9: '',
-    field10: '',
-    field11: '',
-    field12: '',
-    field13: '',
-    field14: '',
-    field15: '',
-    field16: '',
-    field17: '',
-    field18: '',
-    field19: '',
-  });
-
-  const handleInputChange = (field, value) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-  };
+  const [vehicleType, setVehicleType] = useState('');
+  const [plate, setPlate] = useState('');
+  const [driver, setDriver] = useState('');
+  const [tripDate, setTripDate] = useState('');
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const [departureTime, setDepartureTime] = useState('');
+  const [arrivalTime, setArrivalTime] = useState('');
+  const [departureKm, setDepartureKm] = useState('');
+  const [arrivalKm, setArrivalKm] = useState('');
+  const [passengerCount, setPassengerCount] = useState('');
+  const [trip2Origin, setTrip2Origin] = useState('');
+  const [trip2Destination, setTrip2Destination] = useState('');
+  const [trip2DepartureTime, setTrip2DepartureTime] = useState('');
+  const [trip2ArrivalTime, setTrip2ArrivalTime] = useState('');
+  const [trip2DepartureKm, setTrip2DepartureKm] = useState('');
+  const [trip2ArrivalKm, setTrip2ArrivalKm] = useState('');
+  const [trip2PassengerCount, setTrip2PassengerCount] = useState('');
+  const [tripNotes, setTripNotes] = useState('');
 
   const handleSubmit = () => {
-    // Lógica para enviar o relatório
-    console.log('Relatório enviado:', formData);
+    // Implemente a lógica para enviar o relatório
+    // Você pode acessar todos os estados aqui para enviar para o servidor ou armazenar localmente
   };
 
   return (
-    <ScrollView contentContainerStyle={{justifyContent: 'center', }}>
-      <View style={{ flex: 1, padding: 6,  }}>
-        <Text style={{ 
-        padding: 12, 
-        backgroundColor: '#510E16',
-        width: '100%', 
-        fontSize: 24, 
-        textAlign: 'center', 
-        marginBottom: 20,
-        color: '#ffff' }}>
-        Relatório de Viagem
-        </Text>
-        {/* Adicione os campos do formulário */}
-        <Input
-          label="Tipo de veículo"
-          value={formData.field1}
-          onChangeText={(text) => handleInputChange('field1', text)}
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Relatório de Viagem</Text>
+
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Tipo de veículo"
+          value={vehicleType}
+          onChangeText={setVehicleType}
         />
-        <Input
-          label="PLACA "
-          value={formData.field2}
-          onChangeText={(text) => handleInputChange('field2', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="PLACA"
+          value={plate}
+          onChangeText={setPlate}
         />
-        <Input
-          label="Motorista"
-          value={formData.field3}
-          onChangeText={(text) => handleInputChange('field3', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Motorista"
+          value={driver}
+          onChangeText={setDriver}
         />
-         <Input
-          label="Data da viagem"
-          value={formData.field4}
-          onChangeText={(text) => handleInputChange('field4', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Data da viagem"
+          value={tripDate}
+          onChangeText={setTripDate}
         />
-         <Input
-          label="Origem"
-          value={formData.field5}
-          onChangeText={(text) => handleInputChange('field5', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Origem"
+          value={origin}
+          onChangeText={setOrigin}
         />
-         <Input
-          label="Destino"
-          value={formData.field6}
-          onChangeText={(text) => handleInputChange('field6', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Destino"
+          value={destination}
+          onChangeText={setDestination}
         />
-         <Input
-          label="Horário de saída"
-          value={formData.field7}
-          onChangeText={(text) => handleInputChange('field7', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Horário de saída"
+          value={departureTime}
+          onChangeText={setDepartureTime}
         />
-         <Input
-          label="Horário de Chegada"
-          value={formData.field8}
-          onChangeText={(text) => handleInputChange('field8', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Horário de Chegada"
+          value={arrivalTime}
+          onChangeText={setArrivalTime}
         />
-         <Input
-          label="KM de saída"
-          value={formData.field9}
-          onChangeText={(text) => handleInputChange('field9', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="KM de saída"
+          value={departureKm}
+          onChangeText={setDepartureKm}
         />
-         <Input
-          label="KM de chegada"
-          value={formData.field10}
-          onChangeText={(text) => handleInputChange('field10', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="KM de chegada"
+          value={arrivalKm}
+          onChangeText={setArrivalKm}
         />
-         <Input
-          label="Nº. de Passageiros:
-          "
-          value={formData.field11}
-          onChangeText={(text) => handleInputChange('field11', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Nº. de Passageiros"
+          value={passengerCount}
+          onChangeText={setPassengerCount}
         />
-         <Input
-          label="Origem"
-          value={formData.field12}
-          onChangeText={(text) => handleInputChange('field12', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Origem 2"
+          value={trip2Origin}
+          onChangeText={setTrip2Origin}
         />
-         <Input
-          label="Destino"
-          value={formData.field113}
-          onChangeText={(text) => handleInputChange('field13', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Destino 2"
+          value={trip2Destination}
+          onChangeText={setTrip2Destination}
         />
-         <Input
-          label="Horário de saída"
-          value={formData.field14}
-          onChangeText={(text) => handleInputChange('field14', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Horário de saída 2"
+          value={trip2DepartureTime}
+          onChangeText={setTrip2DepartureTime}
         />
-         <Input
-          label="Horário de Chegada"
-          value={formData.field15}
-          onChangeText={(text) => handleInputChange('field15', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Horário de Chegada 2"
+          value={trip2ArrivalTime}
+          onChangeText={setTrip2ArrivalTime}
         />
-         <Input
-          label="KM de saída "
-          value={formData.field16}
-          onChangeText={(text) => handleInputChange('field16', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="KM de saída 2"
+          value={trip2DepartureKm}
+          onChangeText={setTrip2DepartureKm}
         />
-         <Input
-          label="KM de chegada"
-          value={formData.field17}
-          onChangeText={(text) => handleInputChange('field17', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="KM de chegada 2"
+          value={trip2ArrivalKm}
+          onChangeText={setTrip2ArrivalKm}
         />
-         <Input
-          label="Nª de Passageiros:"
-          value={formData.field18}
-          onChangeText={(text) => handleInputChange('field18', text)}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Nª de Passageiros 2"
+          value={trip2PassengerCount}
+          onChangeText={setTrip2PassengerCount}
         />
-         <Input
-          label="OBSERVAÇÕES DA VIAGEM"
-          value={formData.field19}
-          onChangeText={(text) => handleInputChange('field19', text)}
-        />    
-       
+
+        <TextInput
+          style={styles.input}
+          placeholder="Observações da Viagem"
+          value={tripNotes}
+          onChangeText={setTripNotes}
+          multiline
+        />
+
         <Button title="Enviar Relatório" onPress={handleSubmit} />
       </View>
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+    top: 30,
+    backgroundColor: "#0000"
+  },
+  form: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'center',
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 12,
+    padding: 10,
+
+  },
+});
 
 export default TravelReportForm;
