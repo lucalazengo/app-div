@@ -107,6 +107,7 @@ export default function Home() {
                 backgroundColor:
                   item._id === selectedId ? '#510E16' : '#E8E8E8',
                 margin: 5,
+                // lastItemMargin: 50,
               }}
               onPress={() => {
                 selectBus(item)
@@ -119,7 +120,7 @@ export default function Home() {
                   fontWeight: 'bold',
                 }}
               >
-                {item.placa}
+                {item.modelo} - {item.placa}
               </Text>
             </TouchableOpacity>
           )}
