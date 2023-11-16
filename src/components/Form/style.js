@@ -9,8 +9,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
-    marginTop: 320,
     padding: 2,
+    // pmetade da tela
+    marginTop: 320,
   },
   form: {
     width: '100%',

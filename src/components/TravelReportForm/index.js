@@ -1,31 +1,38 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState } from 'react'
+import {
+  ScrollView,
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+} from 'react-native'
 
 const TravelReportForm = () => {
-  const [vehicleType, setVehicleType] = useState('');
-  const [plate, setPlate] = useState('');
-  const [driver, setDriver] = useState('');
-  const [tripDate, setTripDate] = useState('');
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
-  const [departureTime, setDepartureTime] = useState('');
-  const [arrivalTime, setArrivalTime] = useState('');
-  const [departureKm, setDepartureKm] = useState('');
-  const [arrivalKm, setArrivalKm] = useState('');
-  const [passengerCount, setPassengerCount] = useState('');
-  const [trip2Origin, setTrip2Origin] = useState('');
-  const [trip2Destination, setTrip2Destination] = useState('');
-  const [trip2DepartureTime, setTrip2DepartureTime] = useState('');
-  const [trip2ArrivalTime, setTrip2ArrivalTime] = useState('');
-  const [trip2DepartureKm, setTrip2DepartureKm] = useState('');
-  const [trip2ArrivalKm, setTrip2ArrivalKm] = useState('');
-  const [trip2PassengerCount, setTrip2PassengerCount] = useState('');
-  const [tripNotes, setTripNotes] = useState('');
+  const [vehicleType, setVehicleType] = useState('')
+  const [plate, setPlate] = useState('')
+  const [driver, setDriver] = useState('')
+  const [tripDate, setTripDate] = useState('')
+  const [origin, setOrigin] = useState('')
+  const [destination, setDestination] = useState('')
+  const [departureTime, setDepartureTime] = useState('')
+  const [arrivalTime, setArrivalTime] = useState('')
+  const [departureKm, setDepartureKm] = useState('')
+  const [arrivalKm, setArrivalKm] = useState('')
+  const [passengerCount, setPassengerCount] = useState('')
+  const [trip2Origin, setTrip2Origin] = useState('')
+  const [trip2Destination, setTrip2Destination] = useState('')
+  const [trip2DepartureTime, setTrip2DepartureTime] = useState('')
+  const [trip2ArrivalTime, setTrip2ArrivalTime] = useState('')
+  const [trip2DepartureKm, setTrip2DepartureKm] = useState('')
+  const [trip2ArrivalKm, setTrip2ArrivalKm] = useState('')
+  const [trip2PassengerCount, setTrip2PassengerCount] = useState('')
+  const [tripNotes, setTripNotes] = useState('')
 
   const handleSubmit = () => {
     // Implemente a lógica para enviar o relatório
     // Você pode acessar todos os estados aqui para enviar para o servidor ou armazenar localmente
-  };
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -169,8 +176,8 @@ const TravelReportForm = () => {
         <Button title="Enviar Relatório" onPress={handleSubmit} />
       </View>
     </ScrollView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -182,7 +189,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
     top: 30,
-    backgroundColor: "#0000"
+    backgroundColor: '#0000',
   },
   form: {
     flex: 1,
@@ -195,8 +202,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     padding: 10,
-
   },
-});
+})
 
-export default TravelReportForm;
+export default TravelReportForm

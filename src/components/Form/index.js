@@ -19,7 +19,7 @@ export default function Form() {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        'https://efae-45-4-28-15.ngrok-free.app/api/motoristas/login',
+        'https://20b8-189-84-116-107.ngrok-free.app/api/motoristas/login',
         {
           usuario,
           senha,
@@ -51,12 +51,6 @@ export default function Form() {
     setIsMotorista(false)
   }
 
-<<<<<<< HEAD
-    // Navegar para outra tela se o login for bem-sucedido
-    navigation.navigate('TravelReportForm');
-  };
-=======
->>>>>>> c347589ebf30cc6e106e69bee4745f79c165358e
   return (
     <View>
       <Animatable.View

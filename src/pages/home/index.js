@@ -12,13 +12,16 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
+import * as Location from 'expo-location'
 
 export default function Home() {
   const navigation = useNavigation()
   const [search, setSearch] = useState('')
   const [selectedBus, setSelectedBus] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
+  const [driverLocation, setDriverLocation] = useState(null)
   const [data, setData] = useState([])
+
   const [userData, setUserData] = useState(null)
 
   const getUserData = async () => {
@@ -35,7 +38,7 @@ export default function Home() {
   const getOnibus = useCallback(async () => {
     try {
       const response = await axios.get(
-        'https://efae-45-4-28-15.ngrok-free.app/api/onibus',
+        'https://20b8-189-84-116-107.ngrok-free.app/api/onibus',
       )
       setData(response.data)
     } catch (error) {
@@ -43,12 +46,25 @@ export default function Home() {
     }
   }, [])
 
+  const getLocation = async () => {
+    try {
+      const location = await Location.getCurrentPositionAsync({})
+      setDriverLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      })
+    } catch (error) {
+      console.error('Erro ao obter a localização do motorista:', error)
+    }
+  }
+
   useEffect(() => {
     getUserData()
     getOnibus()
+    getLocation()
   }, [getOnibus])
 
-  console.log(userData)
+  console.log('driverLocation', driverLocation)
 
   const updateSearch = (search) => {
     setSearch(search)
@@ -72,7 +88,7 @@ export default function Home() {
             color: '#fff',
             paddingLeft: 10,
           }}
-        >{`Olá, ${userData?.nome}`}</Text>
+        >{`Olá, seja bem vindo(a) ${userData?.nome}`}</Text>
         <Icon
           placa="user"
           size={30}
@@ -139,7 +155,7 @@ export default function Home() {
       {selectedBus && (
         <TouchableOpacity
           style={styles.bottomButton}
-          onPress={() => navigation.navigate('MapScreen')}
+          onPress={() => navigation.navigate('MapScreen', { driverLocation })}
         >
           <Text style={styles.bottomButtonText}>Avançar</Text>
         </TouchableOpacity>
