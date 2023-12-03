@@ -2,198 +2,159 @@ import React, { useState, useEffect, useRef } from 'react'
 import { StyleSheet, Text, View, Button, Animated } from 'react-native'
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import * as Location from 'expo-location'
-import { useRoute } from '@react-navigation/native'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import MapViewDirections from 'react-native-maps-directions'
+import {
+  requestBackgroundPermissionsAsync,
+  getCurrentPositionAsync,
+  watchPositionAsync,
+} from 'expo-location'
 
 const MapScreen = () => {
-  const route = useRoute()
-  const [currentLocation, setCurrentLocation] = useState()
+  const [location, setLocation] = useState(null)
   const [destination, setDestination] = useState(null)
-  const [isRouteOpen, setIsRouteOpen] = useState(false)
-  const [animation] = useState(new Animated.Value(0))
-  const [distance, setDistance] = useState('')
-  const [duration, setDuration] = useState('')
+  const [duration, setDuration] = useState(null)
+  const mapRef = useRef(null)
+  const GOOGLE_MAPS_APIKEY = 'AIzaSyDevAuVwiMi3DTNcKcMquHV2I-_EzjmJz8'
 
-  const startAnimation = () => {
-    Animated.timing(animation, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start()
+  const onDestinationSelect = async (data, details = null) => {
+    setDestination({
+      latitude: details.geometry.location.lat,
+      longitude: details.geometry.location.lng,
+      title: data.description,
+    })
+  }
+
+  async function requestLocationPermissions() {
+    const { granted } = await requestBackgroundPermissionsAsync()
+
+    if (granted) {
+      const currentPosition = await getCurrentPositionAsync()
+      setLocation(currentPosition)
+    }
   }
 
   useEffect(() => {
-    ;(async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync()
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied')
-      }
-      if (
-        route.params &&
-        route.params.driverLocation &&
-        route.params.driverLocation.latitude &&
-        route.params.driverLocation.longitude
-      ) {
-        const { latitude, longitude } = route.params.driverLocation
-        setCurrentLocation({ latitude, longitude })
-      } else {
-        console.log('driverLocation or its latitude/longitude is not defined')
-      }
-    })()
-  }, [route.params])
+    requestLocationPermissions()
+  }, [])
 
-  const handleStartRoute = async () => {
-    setIsRouteOpen(true)
-    startAnimation()
-  }
+  useEffect(() => {
+    watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.BestForNavigation,
+        timeInterval: 1000,
+        distanceInterval: 1,
+      },
+      (location) => {
+        setLocation(location)
+        mapRef.current?.animateCamera({
+          pitch: 70,
+          center: location.coords,
+        })
+      },
+    )
+  }, [])
 
   return (
-    <View style={{ flex: 1 }}>
-      <MapView
-        style={{
-          flex: 1,
-          width: '100%',
-          height: '100%',
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: 'white',
+      }}
+    >
+      <GooglePlacesAutocomplete
+        placeholder="Para onde?"
+        fetchDetails
+        GooglePlacesSearchQuery={{
+          rankby: 'distance',
         }}
-        provider={PROVIDER_GOOGLE}
-        initialRegion={currentLocation}
-        region={currentLocation}
-        showsUserLocation
-        showsMyLocationButton
-        showsCompass
-        toolbarEnabled
-        onUserLocationChange={(event) => {
-          setCurrentLocation(event.nativeEvent.coordinate)
+        onPress={onDestinationSelect}
+        query={{
+          key: GOOGLE_MAPS_APIKEY,
+          language: 'pt-BR',
         }}
-      >
-        <MapViewDirections
-          origin={currentLocation}
-          destination={destination}
-          apikey="AIzaSyDevAuVwiMi3DTNcKcMquHV2I-_EzjmJz8"
-          strokeWidth={6}
-          strokeColor="hotpink"
-          onReady={(result) => {
-            console.log(`Distance: ${result.distance} km`)
-            console.log(`Duration: ${result.duration} min.`)
-
-            const updatedDistance = `Distance: ${result.distance.toFixed(2)} km`
-            const updatedDuration = `Duration: ${result.duration.toFixed(
-              2,
-            )} min.`
-
-            if (distance !== updatedDistance) {
-              setDistance(updatedDistance)
-            }
-
-            if (duration !== updatedDuration) {
-              setDuration(updatedDuration)
-            }
+        styles={{
+          container: {
+            flex: 0,
+            marginTop: 30,
+          },
+          textInput: {
+            height: 50,
+            color: '#5d5d5d',
+            fontSize: 18,
+            backgroundColor: '#f5f5f5',
+            borderRadius: 10,
+            padding: 10,
+            marginTop: 10,
+          },
+          listView: {
+            backgroundColor: '#f5f5f5',
+            borderRadius: 10,
+            marginTop: 10,
+          },
+          row: {
+            padding: 10,
+            height: 50,
+          },
+        }}
+      />
+      {location && (
+        <MapView
+          ref={mapRef}
+          style={{ flex: 1 }}
+          initialRegion={{
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
           }}
-        />
-        {destination && (
+        >
           <Marker
             coordinate={{
-              latitude: destination.latitude,
-              longitude: destination.longitude,
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
             }}
-            title="Destino"
-            description="Destino"
+            title="Você está aqui"
           />
-        )}
-
-        {currentLocation && (
-          <Marker
-            coordinate={{
-              latitude: currentLocation.latitude,
-              longitude: currentLocation.longitude,
-            }}
-            title="Origem"
-            description="Origem"
-          />
-        )}
-      </MapView>
-
-      <View style={styles.searchContainer}>
-        <GooglePlacesAutocomplete
-          placeholder="Insira o destino"
-          onPress={(data, details = null) => {
-            console.log(data, details)
-            setDestination({
-              latitude: details.geometry.location.lat,
-              longitude: details.geometry.location.lng,
-            })
+          {destination && (
+            <>
+              <Marker coordinate={destination} title={destination.title} />
+              <MapViewDirections
+                origin={{
+                  latitude: location.coords.latitude,
+                  longitude: location.coords.longitude,
+                }}
+                destination={destination}
+                apikey={GOOGLE_MAPS_APIKEY}
+                strokeWidth={4}
+                strokeColor="#510E16"
+                onReady={(result) => {
+                  setDuration(result.duration)
+                  mapRef.current.fitToCoordinates(result.coordinates, {
+                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                  })
+                }}
+              />
+            </>
+          )}
+        </MapView>
+      )}
+      {duration && (
+        <Text
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            left: 10,
+            fontSize: 18,
+            fontWeight: 'bold',
+            color: '#510E16',
           }}
-          fetchDetails
-          query={{
-            key: 'AIzaSyDevAuVwiMi3DTNcKcMquHV2I-_EzjmJz8',
-            language: 'pt',
-            components: 'country:br',
-          }}
-          styles={{
-            textInput: {
-              height: 40,
-              borderColor: 'gray',
-              borderWidth: 1,
-              backgroundColor: 'white',
-              padding: 10,
-            },
-          }}
-        />
-        <View style={styles.startRouteButton}>
-          <Button
-            title="Iniciar rota"
-            color="black"
-            onPress={handleStartRoute}
-          />
-        </View>
-        {isRouteOpen && (
-          <Animated.View style={styles.routeInfoContainer}>
-            <Text>{distance}</Text>
-            <Text>{duration}</Text>
-          </Animated.View>
-        )}
-      </View>
+        >
+          Tempo estimado de chegada: {Math.round(duration)} min
+        </Text>
+      )}
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  searchContainer: {
-    position: 'absolute',
-    bottom: 50,
-    left: 10,
-    right: 10,
-  },
-  startRouteButton: {
-    marginTop: 10,
-    marginBottom: 10,
-    backgroundColor: '#510E16',
-  },
-  routeInfoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 10,
-    borderRadius: 10,
-    transform: [
-      {
-        translateY: 0,
-      },
-      {
-        translateY: 0,
-      },
-      {
-        translateY: 0,
-      },
-      {
-        scale: 1,
-      },
-      {
-        perspective: 1000,
-      },
-    ],
-  },
-})
 
 export default MapScreen
