@@ -46,11 +46,14 @@ const MapScreen = () => {
   }
 
   async function requestLocationPermissions() {
-    const { granted } = await requestBackgroundPermissionsAsync()
+    const { status } = await Location.requestForegroundPermissionsAsync()
 
-    if (granted) {
-      const currentPosition = await getCurrentPositionAsync()
+    if (status === 'granted') {
+      const currentPosition = await Location.getCurrentPositionAsync({})
       setLocation(currentPosition)
+    } else {
+      // Handle the case where permission is not granted
+      console.warn('Location permission not granted')
     }
   }
 
@@ -96,7 +99,6 @@ const MapScreen = () => {
   }, [userData])
 
   useEffect(() => {
-    // get the driver location and the post into the database
     const driversRef = ref(db, 'drivers')
 
     onValue(driversRef, (snapshot) => {
@@ -188,6 +190,17 @@ const MapScreen = () => {
               />
             </>
           )}
+          {drivers.map((driver) => (
+            <Marker
+              key={driver.id}
+              coordinate={{
+                latitude: driver.latitude,
+                longitude: driver.longitude,
+              }}
+              title={driver.nome}
+              pinColor="blue"
+            />
+          ))}
         </MapView>
       )}
       {duration && (
@@ -207,16 +220,6 @@ const MapScreen = () => {
           Tempo estimado de chegada: {Math.round(duration)} min
         </Text>
       )}
-      {drivers.map((driver) => (
-        <Marker
-          key={driver.id}
-          coordinate={{
-            latitude: driver.latitude,
-            longitude: driver.longitude,
-          }}
-          title={driver.name}
-        />
-      ))}
     </View>
   )
 }
