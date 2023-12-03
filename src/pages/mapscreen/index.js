@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { StyleSheet, Text, View, Button, Animated } from 'react-native'
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps'
+import { Text, View } from 'react-native'
+import MapView, { Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import MapViewDirections from 'react-native-maps-directions'
@@ -9,12 +9,32 @@ import {
   getCurrentPositionAsync,
   watchPositionAsync,
 } from 'expo-location'
+import { initializeApp } from 'firebase/app'
+import { getDatabase, ref, onValue, set } from 'firebase/database'
+import { useRoute } from '@react-navigation/native'
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyDxd5o8FV1payqlrrQnTu8hz0yV1hPIy1w',
+  authDomain: 'app-div.firebaseapp.com',
+  projectId: 'app-div',
+  storageBucket: 'app-div.appspot.com',
+  messagingSenderId: '782376204081',
+  appId: '1:782376204081:web:aaaeca6b3de00b19e7e210',
+  measurementId: 'G-FLEWE7EFZ9',
+  databaseURL: 'https://app-div-default-rtdb.firebaseio.com/',
+}
+
+const app = initializeApp(firebaseConfig)
+const db = getDatabase(app)
 
 const MapScreen = () => {
+  const route = useRoute()
+  const userData = route.params.userData
   const [location, setLocation] = useState(null)
   const [destination, setDestination] = useState(null)
   const [duration, setDuration] = useState(null)
   const mapRef = useRef(null)
+  const [drivers, setDrivers] = useState([])
   const GOOGLE_MAPS_APIKEY = 'AIzaSyDevAuVwiMi3DTNcKcMquHV2I-_EzjmJz8'
 
   const onDestinationSelect = async (data, details = null) => {
@@ -46,13 +66,44 @@ const MapScreen = () => {
         distanceInterval: 1,
       },
       (location) => {
-        setLocation(location)
-        mapRef.current?.animateCamera({
-          pitch: 70,
-          center: location.coords,
-        })
+        if (
+          location &&
+          location.coords &&
+          location.coords.latitude &&
+          location.coords.longitude &&
+          userData &&
+          userData.id &&
+          userData.nome
+        ) {
+          setLocation(location)
+          mapRef.current?.animateCamera({
+            pitch: 70,
+            center: location.coords,
+          })
+
+          const driversRef = ref(db, 'drivers/' + userData?.id)
+          set(driversRef, {
+            id: userData?.id,
+            nome: userData?.nome,
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          })
+        } else {
+          console.log('One or more required properties are undefined.')
+        }
       },
     )
+  }, [userData])
+
+  useEffect(() => {
+    // get the driver location and the post into the database
+    const driversRef = ref(db, 'drivers')
+
+    onValue(driversRef, (snapshot) => {
+      const data = snapshot.val()
+      const drivers = Object.values(data)
+      setDrivers(drivers)
+    })
   }, [])
 
   return (
@@ -148,11 +199,24 @@ const MapScreen = () => {
             fontSize: 18,
             fontWeight: 'bold',
             color: '#510E16',
+            backgroundColor: 'white',
+            padding: 10,
+            borderRadius: 10,
           }}
         >
           Tempo estimado de chegada: {Math.round(duration)} min
         </Text>
       )}
+      {drivers.map((driver) => (
+        <Marker
+          key={driver.id}
+          coordinate={{
+            latitude: driver.latitude,
+            longitude: driver.longitude,
+          }}
+          title={driver.name}
+        />
+      ))}
     </View>
   )
 }

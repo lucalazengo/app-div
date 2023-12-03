@@ -13,8 +13,6 @@ export default function Form() {
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [isMotorista, setIsMotorista] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
 
   const handleLogin = async () => {
     try {
@@ -33,13 +31,9 @@ export default function Form() {
       const userData = JSON.stringify(motorista)
       await AsyncStorage.setItem('userData', userData)
 
-      setSuccessMessage('Login realizado com sucesso!')
-      setErrorMessage('')
       navigation.navigate('Home')
     } catch (error) {
       console.log(error)
-      setErrorMessage(error.message)
-      setSuccessMessage('')
     }
   }
 
@@ -144,14 +138,6 @@ export default function Form() {
                 />
               </TouchableOpacity>
             </Animatable.View>
-          )}
-
-          {errorMessage !== '' && (
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          )}
-
-          {successMessage !== '' && (
-            <Text style={styles.successText}>{successMessage}</Text>
           )}
         </View>
       </View>

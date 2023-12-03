@@ -12,16 +12,13 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import axios from 'axios'
-import * as Location from 'expo-location'
 
 export default function Home() {
   const navigation = useNavigation()
   const [search, setSearch] = useState('')
   const [selectedBus, setSelectedBus] = useState(null)
   const [selectedId, setSelectedId] = useState(null)
-  const [driverLocation, setDriverLocation] = useState(null)
   const [data, setData] = useState([])
-
   const [userData, setUserData] = useState(null)
 
   const getUserData = async () => {
@@ -46,25 +43,10 @@ export default function Home() {
     }
   }, [])
 
-  const getLocation = async () => {
-    try {
-      const location = await Location.getCurrentPositionAsync({})
-      setDriverLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      })
-    } catch (error) {
-      console.error('Erro ao obter a localização do motorista:', error)
-    }
-  }
-
   useEffect(() => {
     getUserData()
     getOnibus()
-    getLocation()
   }, [getOnibus])
-
-  console.log('driverLocation', driverLocation)
 
   const updateSearch = (search) => {
     setSearch(search)
@@ -155,7 +137,7 @@ export default function Home() {
       {selectedBus && (
         <TouchableOpacity
           style={styles.bottomButton}
-          onPress={() => navigation.navigate('MapScreen', { driverLocation })}
+          onPress={() => navigation.navigate('MapScreen', { userData })}
         >
           <Text style={styles.bottomButtonText}>Avançar</Text>
         </TouchableOpacity>
