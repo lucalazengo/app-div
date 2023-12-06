@@ -190,6 +190,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     top: 30,
     backgroundColor: '#0000',
+    color: '#510E16',
+    position: 'fixed',
   },
   form: {
     flex: 1,

@@ -35,7 +35,7 @@ export default function Home() {
   const getOnibus = useCallback(async () => {
     try {
       const response = await axios.get(
-        'https://098d-45-4-28-107.ngrok-free.app/api/onibus',
+        'https://3dc9-189-84-116-107.ngrok-free.app/api/onibus',
       )
       setData(response.data)
     } catch (error) {

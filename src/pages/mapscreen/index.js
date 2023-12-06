@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Text, View } from 'react-native'
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  StyleSheet,
+} from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import * as Location from 'expo-location'
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete'
 import MapViewDirections from 'react-native-maps-directions'
-import {
-  requestBackgroundPermissionsAsync,
-  getCurrentPositionAsync,
-  watchPositionAsync,
-} from 'expo-location'
+import { watchPositionAsync } from 'expo-location'
 import { initializeApp } from 'firebase/app'
 import { getDatabase, ref, onValue, set } from 'firebase/database'
-import { useRoute } from '@react-navigation/native'
+import { useRoute, useNavigation } from '@react-navigation/native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDxd5o8FV1payqlrrQnTu8hz0yV1hPIy1w',
@@ -28,6 +33,8 @@ const app = initializeApp(firebaseConfig)
 const db = getDatabase(app)
 
 const MapScreen = () => {
+  const navigation = useNavigation()
+  const [dropdownVisible, setDropdownVisible] = useState(false)
   const route = useRoute()
   const userData = route.params.userData
   const [location, setLocation] = useState(null)
@@ -36,6 +43,21 @@ const MapScreen = () => {
   const mapRef = useRef(null)
   const [drivers, setDrivers] = useState([])
   const GOOGLE_MAPS_APIKEY = 'AIzaSyDevAuVwiMi3DTNcKcMquHV2I-_EzjmJz8'
+
+  const dropdownOptions = [
+    { id: 1, label: 'Gerar Relatórios de Viagens', screen: 'RelatóriosScreen' },
+    { id: 2, label: 'Históricos', screen: 'HistóricosScreen' },
+    { id: 3, label: 'Ajuda & Suporte', screen: 'AjudaScreen' },
+  ]
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userData')
+      navigation.navigate('Login')
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const onDestinationSelect = async (data, details = null) => {
     setDestination({
@@ -52,7 +74,6 @@ const MapScreen = () => {
       const currentPosition = await Location.getCurrentPositionAsync({})
       setLocation(currentPosition)
     } else {
-      // Handle the case where permission is not granted
       console.warn('Location permission not granted')
     }
   }
@@ -109,118 +130,205 @@ const MapScreen = () => {
   }, [])
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'white',
-      }}
-    >
-      <GooglePlacesAutocomplete
-        placeholder="Para onde?"
-        fetchDetails
-        GooglePlacesSearchQuery={{
-          rankby: 'distance',
-        }}
-        onPress={onDestinationSelect}
-        query={{
-          key: GOOGLE_MAPS_APIKEY,
-          language: 'pt-BR',
-        }}
-        styles={{
-          container: {
-            flex: 0,
-            marginTop: 30,
-          },
-          textInput: {
-            height: 50,
-            color: '#5d5d5d',
-            fontSize: 18,
-            backgroundColor: '#f5f5f5',
-            borderRadius: 10,
-            padding: 10,
-            marginTop: 10,
-          },
-          listView: {
-            backgroundColor: '#f5f5f5',
-            borderRadius: 10,
-            marginTop: 10,
-          },
-          row: {
-            padding: 10,
-            height: 50,
-          },
-        }}
-      />
-      {location && (
-        <MapView
-          ref={mapRef}
-          style={{ flex: 1 }}
-          initialRegion={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          }}
-        >
-          <Marker
-            coordinate={{
+    <>
+      <View>
+        {location && (
+          <MapView
+            ref={mapRef}
+            initialRegion={{
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
             }}
-            title="Você está aqui"
-          />
-          {destination && (
-            <>
-              <Marker coordinate={destination} title={destination.title} />
-              <MapViewDirections
-                origin={{
-                  latitude: location.coords.latitude,
-                  longitude: location.coords.longitude,
-                }}
-                destination={destination}
-                apikey={GOOGLE_MAPS_APIKEY}
-                strokeWidth={4}
-                strokeColor="#510E16"
-                onReady={(result) => {
-                  setDuration(result.duration)
-                  mapRef.current.fitToCoordinates(result.coordinates, {
-                    edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-                  })
-                }}
-              />
-            </>
-          )}
-          {drivers.map((driver) => (
+            style={{ width: '100%', height: '100%' }}
+          >
             <Marker
-              key={driver.id}
               coordinate={{
-                latitude: driver.latitude,
-                longitude: driver.longitude,
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
               }}
-              title={driver.nome}
-              pinColor="blue"
+              title={userData?.nome}
+              pinColor="red"
             />
-          ))}
-        </MapView>
-      )}
-      {duration && (
-        <Text
-          style={{
-            position: 'absolute',
-            bottom: 10,
-            left: 10,
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: '#510E16',
-            backgroundColor: 'white',
-            padding: 10,
-            borderRadius: 10,
+            {destination && (
+              <>
+                <Marker coordinate={destination} title={destination.title} />
+                <MapViewDirections
+                  origin={{
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                  }}
+                  destination={destination}
+                  apikey={GOOGLE_MAPS_APIKEY}
+                  strokeWidth={4}
+                  strokeColor="#510E16"
+                  onReady={(result) => {
+                    setDuration(result.duration)
+                    mapRef.current.fitToCoordinates(result.coordinates, {
+                      edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                    })
+                  }}
+                />
+              </>
+            )}
+            {drivers.map((driver) => (
+              <Marker
+                key={driver.id}
+                coordinate={{
+                  latitude: driver.latitude,
+                  longitude: driver.longitude,
+                }}
+                title={driver.nome}
+                pinColor="blue"
+              />
+            ))}
+          </MapView>
+        )}
+        <GooglePlacesAutocomplete
+          placeholder="Para onde vamos?"
+          onPress={onDestinationSelect}
+          query={{
+            key: GOOGLE_MAPS_APIKEY,
+            language: 'pt-BR',
           }}
+          fetchDetails
+          styles={{
+            container: {
+              position: 'absolute',
+              top: 40,
+              width: '100%',
+            },
+            textInput: {
+              height: 50,
+              backgroundColor: '#fff',
+              borderRadius: 0,
+              padding: 15,
+              marginHorizontal: 10,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.1,
+              shadowRadius: 15,
+              elevation: 5,
+              fontSize: 18,
+            },
+            listView: {
+              position: 'absolute',
+              top: 100,
+              backgroundColor: '#fff',
+              borderRadius: 0,
+              padding: 10,
+              marginHorizontal: 10,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.1,
+              shadowRadius: 15,
+              elevation: 5,
+            },
+            description: {
+              fontSize: 16,
+            },
+            row: {
+              padding: 20,
+              height: 58,
+            },
+          }}
+        />
+        {duration && (
+          <Text
+            style={{
+              position: 'absolute',
+              top: 100,
+              backgroundColor: '#fff',
+              borderRadius: 0,
+              padding: 10,
+              marginHorizontal: 10,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.1,
+              shadowRadius: 15,
+              elevation: 5,
+            }}
+          >
+            Tempo estimado de chegada: {Math.round(duration)} min
+          </Text>
+        )}
+
+        <TouchableOpacity
+          onPress={() => setDropdownVisible(!dropdownVisible)}
+          style={{ position: 'absolute', top: 48, right: 20 }}
         >
-          Tempo estimado de chegada: {Math.round(duration)} min
-        </Text>
-      )}
-    </View>
+          <Icon name="menu" size={30} color="#510E16" />
+        </TouchableOpacity>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={dropdownVisible}
+          onRequestClose={() => setDropdownVisible(!dropdownVisible)}
+          style={{ backgroundColor: 'red' }}
+        >
+          <View
+            style={{
+              backgroundColor: '#510E16',
+              marginRight: '40%',
+              flex: 1,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: 20,
+              }}
+            >
+              <Icon name="person-circle-outline" size={50} color="#fff" />
+              <Text style={{ color: '#fff', fontSize: 20 }}>
+                {userData?.nome}
+              </Text>
+            </View>
+            <FlatList
+              data={dropdownOptions}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setDropdownVisible(!dropdownVisible)
+                    navigation.navigate(item.screen)
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 18,
+                      padding: 20,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#fff',
+                    }}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity onPress={handleLogout} style={{ padding: 20 }}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 20,
+                  padding: 20,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#fff',
+                }}
+              >
+                Sair
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </View>
+    </>
   )
 }
 
